@@ -6,10 +6,15 @@ from pathlib import Path
 
 app = FastAPI()
 
+# Define the static directory path
+STATIC_DIR = Path(__file__).resolve().parent / "static"
+
 # Serve files from the "static" folder
-app.mount("/static", StaticFiles(directory="app/static"), name="static")
+app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 
 # Model for validating form input
+
+
 class SignupForm(BaseModel):
     name: constr(min_length=1, max_length=100)
     email: EmailStr
@@ -17,8 +22,7 @@ class SignupForm(BaseModel):
 
 @app.get("/signup", response_class=HTMLResponse)
 def get_signup_form():
-    # Load and return the signup HTML file
-    html_path = Path("static/newsletter_signup.html")
+    html_path = STATIC_DIR / "newsletter_signup.html"
     return html_path.read_text()
 
 
@@ -27,6 +31,5 @@ def post_signup(
     name: str = Form(...),
     email: str = Form(...)
 ):
-    # FastAPI automatically validates these against the type hints
     form = SignupForm(name=name, email=email)
     return {"message": f"Thanks for subscribing, {form.name}!"}
